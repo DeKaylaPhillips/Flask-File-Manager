@@ -55,21 +55,23 @@ def register(app):
     @app.route('/files/<int:file_id>', methods=['PUT'])
     def update_file_content(file_id):
         data = request.get_json()
-        
+
         if 'content' not in data:
             return jsonify({"success": False, "data": "No file content specified in request."})
-        
-        file_record = db.session.execute(select(Files).where(Files.id == file_id)).scalars().one()
+
+        file_record = db.session.execute(
+            select(Files).where(Files.id == file_id)).scalars().one()
         if not file_record:
             return jsonify({"success": False, "data": f"File with ID {file_id} not found."})
-        
+
         filename = f'{file_record.name}.{file_record.extension}'
         expected_headers = file_record.headers.split(",")
         content = data['content']
-        
+
         try:
             file_handler = FileHandler(Validator, Formatter)
-            file_handler.update(filename=filename, content_data=content, expected_headers=expected_headers)
+            file_handler.update(
+                filename=filename, content_data=content, expected_headers=expected_headers)
             return jsonify({"success": True, "data": f"File with ID {file_id} successfully updated."})
         except Exception as e:
             return jsonify({"success": False, "data": f"File not found or content could not be updated.", "error": str(e)})
@@ -77,14 +79,15 @@ def register(app):
     @app.route('/files/<int:file_id>', methods=['GET'])
     def read_file_content(file_id):
         data = request.get_json()
-        
+
         if 'name' not in data:
-            return jsonify({"success": False, "data": "No file name supplied in request."}), 
-        
-        file_record = db.session.execute(select(Files).where(Files.id == file_id)).scalars().one()
+            return jsonify({"success": False, "data": "No file name supplied in request."}),
+
+        file_record = db.session.execute(
+            select(Files).where(Files.id == file_id)).scalars().one()
         if not file_record:
             return jsonify({"success": False, "data": f"File with ID {file_id} not found.", })
-        
+
         try:
             filename = f"{file_record.name}.{file_record.extension}"
             file_handler = FileHandler(Validator, Formatter)
@@ -96,15 +99,15 @@ def register(app):
     @app.route('/files/<int:file_id>', methods=['DELETE'])
     def delete_file(file_id):
         data = request.get_json()
-        
+
         if 'name' not in data:
             return jsonify({"success": False, "data": f"No file name supplied in request."})
-        
+
         file_record = db.session.execute(
             select(Files).where(Files.id == file_id)).scalars().one()
         if not file_record:
             return jsonify({"success": False, "data": f"File with ID {file_id} not found."})
-        
+
         try:
             filename = f"{file_record.name}.{file_record.extension}"
             file_handler = FileHandler(Validator, Formatter)

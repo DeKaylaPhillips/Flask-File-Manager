@@ -4,6 +4,7 @@ from typing import Type
 from sqlalchemy import select
 import os
 
+
 class Formatter:
     pass
 
@@ -24,10 +25,11 @@ class DBHandler:
         return new_file
 
     def delete_record(self, filename):
-        results = db.session.execute(select(Files).where(Files.name == filename))
+        results = db.session.execute(
+            select(Files).where(Files.name == filename))
         file = results.scalars().one()
-        
+
         if not file:
             raise FileNotFoundError(f"File '{filename}' does not exist.")
         db.session.delete(file)
-        db.session.commit()        
+        db.session.commit()

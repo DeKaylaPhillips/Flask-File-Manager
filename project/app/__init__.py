@@ -12,11 +12,13 @@ configurations = {
     'TestingConfig': TestingConfig
 }
 
+
 def create_app(config_name=None):
     app = Flask(__name__)
-    config_name = config_name or os.environ.get('FLASK_CONFIG', 'DevelopmentConfig')
+    config_name = config_name or os.environ.get(
+        'FLASK_CONFIG', 'DevelopmentConfig')
     app.config.from_object(configurations[config_name])
-    
+
     db.init_app(app)
     migrate.init_app(app, db)
     from app import views

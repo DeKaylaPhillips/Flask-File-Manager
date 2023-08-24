@@ -29,6 +29,7 @@ def test_create_file_status_and_response(client, db_file_counter, mock_set):
     assert data["data"] == "File created successfully."
     assert initial_file_count != updated_file_count
 
+
 def test_create_file_file_operations(client, mock_set):
     client.post("/files", json={
         "name": "testFile.csv",
@@ -37,6 +38,7 @@ def test_create_file_file_operations(client, mock_set):
 
     mock_set["mock_open"].assert_called_with('files/testFile.csv', 'w')
     mock_set["write"].assert_called_once()
+
 
 def test_read_file_status_and_response(client, test_db_files, mock_set):
     test_file_id = test_db_files[0].id
@@ -51,11 +53,12 @@ def test_read_file_status_and_response(client, test_db_files, mock_set):
     assert data["success"] == True
     assert data["data"] is not None
 
-def test_read_file_file_operations(client, mock_set, test_db_files):    
+
+def test_read_file_file_operations(client, mock_set, test_db_files):
     test_file_id = test_db_files[0].id
     test_file_name = test_db_files[0].name
     test_file_ext = test_db_files[0].extension
-    
+
     response = client.get(f"/files/{test_file_id}", json={
         "name": test_file_name
     })
@@ -63,11 +66,12 @@ def test_read_file_file_operations(client, mock_set, test_db_files):
     content = [content for column in data["data"]
                for content in column.values()]
     formatted_content = ",".join(content) + "\n"
-    
+
     assert mock_set["content"] == formatted_content
     mock_set["mock_open"].assert_called_with(
         f"files/{test_file_name}.{test_file_ext}", "r")
-    
+
+
 def test_update_file_status_and_response(client, test_db_files, mock_set):
     test_file_id = test_db_files[0].id
 
@@ -84,6 +88,7 @@ def test_update_file_status_and_response(client, test_db_files, mock_set):
     assert response.status_code == 200
     assert data["success"] == True
     assert data["data"] == "File content updated successfully."
+
 
 def test_update_file_file_operations(client, mock_set, test_db_files):
     test_file_id = test_db_files[0].id
