@@ -26,27 +26,6 @@ def db_session():
     yield db.session
     db.session.rollback()
 
-
-@pytest.fixture(scope="function")
-def mock_set(mocker):
-    file_headers = "Col1,Col2,Col3,Col4\n"
-    content = "Test1,Test2,Test3,Test4\n"
-    mock_open = mocker.mock_open(read_data=f"{file_headers}{content}")
-    write = mock_open.return_value.write
-    writelines = mock_open.return_value.writelines
-    mocker.patch('builtins.open', mock_open)
-    mocker.patch('os.path.exists', return_value=True)
-
-    mock = {
-        "content": content,
-        "file_headers": file_headers,
-        "mock_open": mock_open,
-        "write": write,
-        "writelines": writelines
-    }
-    return mock
-
-
 @pytest.fixture(scope="function")
 def test_db_files(db_session):
     Files.query.delete()
@@ -81,7 +60,33 @@ def test_db_files(db_session):
     db_session.commit()
     return files
 
-
 @pytest.fixture(scope="function")
 def db_file_counter(db_session):
     return len(db_session.execute(select(Files)).scalars().all())
+
+@pytest.fixture(scope="function")
+def mock_set(mocker):
+    file_headers = "Col1,Col2,Col3,Col4\n"
+    content = "Test1,Test2,Test3,Test4\n"
+    mock_open = mocker.mock_open(read_data=f"{file_headers}{content}")
+    mock_os_path_exists = mocker.patch('os.path.exists', return_value=True)
+    mock_os_remove = mocker.patch("os.remove", return_value=True)
+    write = mock_open.return_value.write
+    writelines = mock_open.return_value.writelines
+    mocker.patch('builtins.open', mock_open)
+    
+    mock = {
+        "content": content,
+        "file_headers": file_headers,
+        "mock_open": mock_open,
+        "mock_os_path_exists": mock_os_path_exists,
+        "mock_os_remove": mock_os_remove,
+        "write": write,
+        "writelines": writelines
+    }
+
+    return mock
+
+
+
+
